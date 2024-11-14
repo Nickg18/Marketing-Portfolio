@@ -1,1 +1,36 @@
 * {box-sizing:border-box;margin:0;padding:0;}
+body {
+    background-color: #03738C;
+}
+.navigation-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    color: aquamarine;
+    margin: 5px;
+    font-family: 'Raleway', sans-serif;
+}
+.top {
+    display: block;
+    width: 10px;
+    height: 3px;
+    background-color: aquamarine;
+    margin: 5px;
+}
+.middle {
+    display: block;
+    width: 5px;
+    height: 3px;
+    background-color: aquamarine;
+    margin: 5px;
+}
+.bottom {
+    display: block;
+    width: 2.5px;
+    height: 3px;
+    background-color: aquamarine;
+    margin: 5px;
+}
