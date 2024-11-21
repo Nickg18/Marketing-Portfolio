@@ -67,3 +67,25 @@ body {
     width: 25px;
     height: 3px;
 }
+
+.link-text {
+    color: aliceblue;
+    text-decoration: none;
+    font-family: 'Raleway', sans-serif;
+}
+.link-text:hover {
+    font-size: 15px;
+}
+.links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    background-color: #96d2d91c;
+    padding: 15px;
+    box-shadow: rgba(0, 0, 0, 0.14) 0px 3px 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+.links.activate {
+    opacity: 1;
+}
