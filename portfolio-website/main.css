@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #03738C;
+    background-color: #030f21;
 }
 
 .navigation-bar {
@@ -16,7 +16,7 @@ body {
 }
 
 .logo {
-    color: #96D2D9;
+    color: #ffffff;
     margin: 15px;
     font-family: 'Raleway', sans-serif;
     font-weight: 600;
@@ -34,7 +34,7 @@ body {
 
 .top, .middle, .bottom {
     display: block;
-    background-color: #96D2D9;
+    background-color: #ffffff;
     margin: 5px;
     transition: all 100ms ease-in-out;
 }
@@ -95,13 +95,13 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #0d6477;
+    background-color: #051c3c;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 3px 8px;
     margin: 25px;
 }
 .description {
     font-family: 'Raleway', sans-serif;
-    color: #96D2D9;
+    color: #ffffff;
     font-weight: 400;
 }
 .img-display {
