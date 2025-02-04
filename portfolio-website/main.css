@@ -80,7 +80,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    background-color: #96d2d91c;
+    background-color: #051834;
     padding: 15px;
     box-shadow: rgba(0, 0, 0, 0.14) 0px 3px 8px;
     opacity: 0;
@@ -95,9 +95,11 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #051c3c;
+    background-color: #051834;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 3px 8px;
     margin: 25px;
+    padding: 15px;
+    border-radius: 5%;
 }
 .description {
     font-family: 'Raleway', sans-serif;
