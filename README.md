@@ -1,4 +1,4 @@
-# Marketing Portfolio
+# Portfolio
 1. Social Media Posts
    - This folder contains some of the social media posts I created for CertaPro Painters using Figma.
 2. todo-list-website
