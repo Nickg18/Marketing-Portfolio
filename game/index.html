@@ -1,173 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL Infinite Stars Around Player</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
+<title>WebGL Infinite Stars Around Player</title>
+<style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"></script>
 </head>
 <body>
-    <canvas id="canvas3D" width="800" height="600"></canvas>
-    <script>
-        const canvas = document.getElementById('canvas3D');
-        const gl = canvas.getContext('webgl');
+<canvas id="canvas3D" width="800" height="600"></canvas>
+<script>
+    const canvas = document.getElementById('canvas3D');
+    const gl = canvas.getContext('webgl');
 
-        if (!gl) {
-            alert("WebGL not supported");
-            throw new Error("WebGL not supported");
+    if (!gl) {
+        alert("WebGL not supported");
+        throw new Error("WebGL not supported");
+    }
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+
+    const starVertexShaderSource = `
+        attribute vec4 aPosition;
+        uniform mat4 uProjectionMatrix;
+        uniform mat4 uViewMatrix;
+        void main() {
+            gl_Position = uProjectionMatrix * uViewMatrix * aPosition;
+            gl_PointSize = 2.0;
         }
+    `;
 
-        gl.enable(gl.DEPTH_TEST);
-        gl.depthFunc(gl.LEQUAL);
-
-        const starVertexShaderSource = `
-            attribute vec4 aPosition;
-            uniform mat4 uProjectionMatrix;
-            uniform mat4 uViewMatrix;
-            void main() {
-                gl_Position = uProjectionMatrix * uViewMatrix * aPosition;
-                gl_PointSize = 2.0;
-            }
-        `;
-
-        const starFragmentShaderSource = `
-            precision mediump float;
-            void main() {
-                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-            }
-        `;
-
-        function createShader(gl, type, source) {
-            const shader = gl.createShader(type);
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(shader));
-                gl.deleteShader(shader);
-                return null;
-            }
-            return shader;
+    const starFragmentShaderSource = `
+        precision mediump float;
+        void main() {
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         }
+    `;
 
-        function createProgram(gl, vertexSource, fragmentSource) {
-            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
-            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
-            const program = gl.createProgram();
-            gl.attachShader(program, vertexShader);
-            gl.attachShader(program, fragmentShader);
-            gl.linkProgram(program);
-
-            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.error(gl.getProgramInfoLog(program));
-                gl.deleteProgram(program);
-                return null;
-            }
-            return program;
+    function createShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error(gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
         }
+        return shader;
+    }
 
-        const starProgram = createProgram(gl, starVertexShaderSource, starFragmentShaderSource);
-        const starAPosition = gl.getAttribLocation(starProgram, 'aPosition');
-        const starUProjectionMatrix = gl.getUniformLocation(starProgram, 'uProjectionMatrix');
-        const starUViewMatrix = gl.getUniformLocation(starProgram, 'uViewMatrix');
+    function createProgram(gl, vertexSource, fragmentSource) {
+        const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
+        const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
 
-        const playerPosition = [0, 1.6, 0];
-        const playerRotation = [0, 0];
-        const keysPressed = {};
-        const moveSpeed = 0.3;
-        const rotationSpeed = 0.02;
-
-        const starDensity = 1500;
-        const starSpawnDistance = 100;
-        const starDespawnDistance = 150;
-        let stars = [];
-
-        function spawnStarsAroundPlayer() {
-            stars = stars.filter(star => {
-                const dx = star[0] - playerPosition[0];
-                const dy = star[1] - playerPosition[1];
-                const dz = star[2] - playerPosition[2];
-                return Math.sqrt(dx * dx + dy * dy + dz * dz) <= starDespawnDistance;
-            });
-
-            while (stars.length < starDensity) {
-                const theta = Math.random() * 2 * Math.PI;
-                const phi = Math.acos(2 * Math.random() - 1);
-                const r = Math.random() * (starSpawnDistance - 10) + 10;
-
-                const x = playerPosition[0] + r * Math.sin(phi) * Math.cos(theta);
-                const y = playerPosition[1] + r * Math.sin(phi) * Math.sin(theta);
-                const z = playerPosition[2] + r * Math.cos(phi);
-
-                stars.push([x, y, z]);
-            }
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error(gl.getProgramInfoLog(program));
+            gl.deleteProgram(program);
+            return null;
         }
+        return program;
+    }
+
+    const starProgram = createProgram(gl, starVertexShaderSource, starFragmentShaderSource);
+    const starAPosition = gl.getAttribLocation(starProgram, 'aPosition');
+    const starUProjectionMatrix = gl.getUniformLocation(starProgram, 'uProjectionMatrix');
+    const starUViewMatrix = gl.getUniformLocation(starProgram, 'uViewMatrix');
+
+    const playerPosition = [0, 1.6, 0];
+    const playerRotation = [0, 0];
+    const keysPressed = {};
+    const moveSpeed = 0.3;
+    const rotationSpeed = 0.02;
+
+    const starDensity = 1500;
+    const starSpawnDistance = 100;
+    const starDespawnDistance = 150;
+    let stars = [];
+
+    function spawnStarsAroundPlayer() {
+        stars = stars.filter(star => {
+            const dx = star[0] - playerPosition[0];
+            const dy = star[1] - playerPosition[1];
+            const dz = star[2] - playerPosition[2];
+            return Math.sqrt(dx * dx + dy * dy + dz * dz) <= starDespawnDistance;
+        });
+
+        while (stars.length < starDensity) {
+            const theta = Math.random() * 2 * Math.PI;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const r = Math.random() * (starSpawnDistance - 10) + 10;
+
+            const x = playerPosition[0] + r * Math.sin(phi) * Math.cos(theta);
+            const y = playerPosition[1] + r * Math.sin(phi) * Math.sin(theta);
+            const z = playerPosition[2] + r * Math.cos(phi);
+
+            stars.push([x, y, z]);
+        }
+    }
+    spawnStarsAroundPlayer();
+
+    const starBuffer = gl.createBuffer();
+
+    const projectionMatrix = mat4.create();
+    const viewMatrix = mat4.create();
+    mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 200.0);
+
+    window.addEventListener('keydown', (e) => { keysPressed[e.key] = true; });
+    window.addEventListener('keyup', (e) => { keysPressed[e.key] = false; });
+
+    function updatePlayerPosition() {
+        const forward = vec3.fromValues(
+            Math.sin(playerRotation[0]) * Math.cos(playerRotation[1]),
+            Math.sin(playerRotation[1]),
+            Math.cos(playerRotation[0]) * Math.cos(playerRotation[1])
+        );
+        const right = vec3.fromValues(
+            Math.cos(playerRotation[0]),
+            0,
+            -Math.sin(playerRotation[0])
+        );
+
+        if (keysPressed['w']) vec3.scaleAndAdd(playerPosition, playerPosition, forward, moveSpeed);
+        if (keysPressed['s']) vec3.scaleAndAdd(playerPosition, playerPosition, forward, -moveSpeed);
+        if (keysPressed['a']) vec3.scaleAndAdd(playerPosition, playerPosition, right, -moveSpeed);
+        if (keysPressed['d']) vec3.scaleAndAdd(playerPosition, playerPosition, right, moveSpeed);
+
+        if (keysPressed['ArrowLeft']) playerRotation[0] -= rotationSpeed;
+        if (keysPressed['ArrowRight']) playerRotation[0] += rotationSpeed;
+        if (keysPressed['ArrowUp']) playerRotation[1] = Math.max(playerRotation[1] - rotationSpeed, -Math.PI / 2);
+        if (keysPressed['ArrowDown']) playerRotation[1] = Math.min(playerRotation[1] + rotationSpeed, Math.PI / 2);
+    }
+
+    function render() {
+        updatePlayerPosition();
         spawnStarsAroundPlayer();
 
-        const starBuffer = gl.createBuffer();
+        const lookAt = vec3.fromValues(
+            Math.sin(playerRotation[0]) * Math.cos(playerRotation[1]),
+            Math.sin(playerRotation[1]),
+            Math.cos(playerRotation[0]) * Math.cos(playerRotation[1])
+        );
+        const target = vec3.add(vec3.create(), playerPosition, lookAt);
+        mat4.lookAt(viewMatrix, playerPosition, target, [0, 1, 0]);
 
-        const projectionMatrix = mat4.create();
-        const viewMatrix = mat4.create();
-        mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 200.0);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        window.addEventListener('keydown', (e) => { keysPressed[e.key] = true; });
-        window.addEventListener('keyup', (e) => { keysPressed[e.key] = false; });
+        gl.useProgram(starProgram);
+        gl.bindBuffer(gl.ARRAY_BUFFER, starBuffer);
+        const flatStars = stars.flat();
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatStars), gl.STATIC_DRAW);
+        gl.vertexAttribPointer(starAPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(starAPosition);
+        gl.uniformMatrix4fv(starUProjectionMatrix, false, projectionMatrix);
+        gl.uniformMatrix4fv(starUViewMatrix, false, viewMatrix);
+        gl.drawArrays(gl.POINTS, 0, stars.length);
 
-        function updatePlayerPosition() {
-            const forward = vec3.fromValues(
-                Math.sin(playerRotation[0]) * Math.cos(playerRotation[1]),
-                Math.sin(playerRotation[1]),
-                Math.cos(playerRotation[0]) * Math.cos(playerRotation[1])
-            );
-            const right = vec3.fromValues(
-                Math.cos(playerRotation[0]),
-                0,
-                -Math.sin(playerRotation[0])
-            );
+        requestAnimationFrame(render);
+    }
 
-            if (keysPressed['w']) vec3.scaleAndAdd(playerPosition, playerPosition, forward, moveSpeed);
-            if (keysPressed['s']) vec3.scaleAndAdd(playerPosition, playerPosition, forward, -moveSpeed);
-            if (keysPressed['a']) vec3.scaleAndAdd(playerPosition, playerPosition, right, -moveSpeed);
-            if (keysPressed['d']) vec3.scaleAndAdd(playerPosition, playerPosition, right, moveSpeed);
-
-            if (keysPressed['ArrowLeft']) playerRotation[0] -= rotationSpeed;
-            if (keysPressed['ArrowRight']) playerRotation[0] += rotationSpeed;
-            if (keysPressed['ArrowUp']) playerRotation[1] = Math.max(playerRotation[1] - rotationSpeed, -Math.PI / 2);
-            if (keysPressed['ArrowDown']) playerRotation[1] = Math.min(playerRotation[1] + rotationSpeed, Math.PI / 2);
-        }
-
-        function render() {
-            updatePlayerPosition();
-            spawnStarsAroundPlayer();
-
-            const lookAt = vec3.fromValues(
-                Math.sin(playerRotation[0]) * Math.cos(playerRotation[1]),
-                Math.sin(playerRotation[1]),
-                Math.cos(playerRotation[0]) * Math.cos(playerRotation[1])
-            );
-            const target = vec3.add(vec3.create(), playerPosition, lookAt);
-            mat4.lookAt(viewMatrix, playerPosition, target, [0, 1, 0]);
-
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-            gl.useProgram(starProgram);
-            gl.bindBuffer(gl.ARRAY_BUFFER, starBuffer);
-            const flatStars = stars.flat();
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatStars), gl.STATIC_DRAW);
-            gl.vertexAttribPointer(starAPosition, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(starAPosition);
-            gl.uniformMatrix4fv(starUProjectionMatrix, false, projectionMatrix);
-            gl.uniformMatrix4fv(starUViewMatrix, false, viewMatrix);
-            gl.drawArrays(gl.POINTS, 0, stars.length);
-
-            requestAnimationFrame(render);
-        }
-
-        render();
-    </script>
+    render();
+</script>
 </body>
 </html>
